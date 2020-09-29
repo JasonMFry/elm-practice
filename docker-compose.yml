@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  app:
+    init: true
+    build: app
+    volumes:
+      - ./app/:/app/
+    command: ./watch.sh ./build.sh
+  server:
+    init: true
+    build: app
+    volumes:
+      - ./app/:/app/
+    command: nodemon server/app.js
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
