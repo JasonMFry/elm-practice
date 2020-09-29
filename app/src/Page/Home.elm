@@ -209,19 +209,35 @@ tagFeed tag =
 
 viewTags : List Tag -> Html Msg
 viewTags tags =
-    div [ class "tag-list" ] (List.map viewTag tags)
+    div [ class "tag-list" ] (List.filterMap viewTag tags)
 
 
-viewTag : Tag -> Html Msg
+viewTag : Tag -> Maybe (Html Msg)
 viewTag tagName =
-    a
-        [ class "tag-pill tag-default"
-        , onClick (ClickedTag tagName)
+    case
+        -- \u{200C} is a zero width non-joiner character. This probably isn't
+        -- the best solution as some alphabets need them, but for now it'll do
+        ( String.replace "\u{200C}" "" (Tag.toString tagName)
+        , String.isEmpty (String.trim (Tag.toString tagName))
+        )
+    of
+        ( "", _ ) ->
+            Nothing
 
-        -- The RealWorld CSS requires an href to work properly.
-        , href ""
-        ]
-        [ text (Tag.toString tagName) ]
+        ( _, True ) ->
+            Nothing
+
+        _ ->
+            Just
+                (a
+                    [ class "tag-pill tag-default"
+                    , onClick (ClickedTag tagName)
+
+                    -- The RealWorld CSS requires an href to work properly.
+                    , href ""
+                    ]
+                    [ text (Tag.toString tagName) ]
+                )
 
 
 
